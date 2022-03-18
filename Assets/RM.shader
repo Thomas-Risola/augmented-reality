@@ -188,6 +188,13 @@ Shader "Unlit/Ray Marching"
                 return col;
             }
 
+            fixed4 vanishing_black(fixed4 col){
+                if (col.r < _Tol && col.g < _Tol && col.b < _Tol)
+                    col = fixed4(0.1, 0.1, 0.1, 0.1);
+                col = fixed4(col.r, col.g, col.b, max((col.r+col.g+col.b)/3,0.1));
+                return col;
+            }
+
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -230,7 +237,7 @@ Shader "Unlit/Ray Marching"
                     //col = tex2D(_MainTex, i.uv);
 
                     col = tex2D(_MainTex, p_cyl.yz-float2(0,_Size));
-                    col = discard_black(col);
+                    col = vanishing_black(col);
 
                    
                 }

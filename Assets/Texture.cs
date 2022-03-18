@@ -11,14 +11,21 @@ public class Texture : MonoBehaviour
 
     public Texture2D tex;
 
+    private Object[] cell;
+
     //int compteur = 1;
     
    
+    void LoadTexture()
+    {
+        cell = Resources.LoadAll("Tracks/images", typeof(Texture2D));    
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         mat.SetFloat("_Size", size);
+        LoadTexture();
     }
 
     // Update is called once per frame
@@ -27,14 +34,16 @@ public class Texture : MonoBehaviour
         size = 0.5f;  //  / Time.time;
         mat.SetFloat("_Size", size);
 
+        // time interval between 2 images
+        float frame_per_sec = 15;
+
+        // on a dans le tableau cell toutes les images 
+        // 
+        float idx = (Time.time*frame_per_sec) % cell.Length;
+        int index = (int)idx;
+        tex = cell[index] as Texture2D;
         mat.SetTexture("_MainTex", tex);
         
-
-        
-        if (Time.time > 3){
-            tex = Resources.Load("Textures/tracks_cylinder") as Texture2D;
-            mat.SetTexture("_MainTex", tex);
-        }
     }
 
 

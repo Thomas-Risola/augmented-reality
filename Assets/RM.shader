@@ -29,7 +29,6 @@ Shader "Unlit/Ray Marching"
 #define MAX_DIST 100
 #define SURF_DIST 1e-3
 #define pi 3.141592653589793238462
-#define epsilon 1e-5
 
             struct appdata
             {
@@ -189,13 +188,6 @@ Shader "Unlit/Ray Marching"
                 return col;
             }
 
-            fixed4 vanishing_black(fixed4 col){
-                if (col.r < _Tol && col.g < _Tol && col.b < _Tol)
-                    col = fixed4(0.1, 0.1, 0.1, 0.1);
-                col = fixed4(col.r, col.g, col.b, max(0.4+(col.r+col.g+col.b)/3.,0.4));
-                return col;
-            }
-
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -238,10 +230,7 @@ Shader "Unlit/Ray Marching"
                     //col = tex2D(_MainTex, i.uv);
 
                     col = tex2D(_MainTex, p_cyl.yz-float2(0,_Size));
-                    //if (abs(p_cyl.y+.5) <= 1e-3)
-                    //    col = tex2D(_MainTex, float2(-.48,p_cyl.z)-float2(0,_Size));
-                    //col = float4(p_cyl.y+1.5, 0, 0, 1.);
-                    col = vanishing_black(col);
+                    col = discard_black(col);
 
                    
                 }

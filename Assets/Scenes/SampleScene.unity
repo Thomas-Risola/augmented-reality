@@ -312,7 +312,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mat: {fileID: 2100000, guid: 5a618c399cc520849bd754b74914331f, type: 2}
   size: 0.5
-  tex: {fileID: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

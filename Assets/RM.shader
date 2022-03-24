@@ -105,7 +105,7 @@ Shader "Unlit/Ray Marching"
                 float3 ab = b - a;
                 float3 ap = p - a;
 
-                float3 n = normalize(float3( -ab.y, ab.x, 100*pi)); // Changement de 3.14/2 à 100*pi
+                float3 n = normalize(float3( -ab.y, ab.x, 0)); // Changement de 3.14/2 à 100*pi
 
                 float orientation = -dot(n, ap); // Changement de signe pour l'orientation du cylindre
 
@@ -180,18 +180,18 @@ Shader "Unlit/Ray Marching"
             // Conversion de cartésien à cylindrique 
             float3 Cart_To_Cyl(float3 p) {
                 float r = _Radius;
-                float theta = atan(p.z/(_Stretching*p.x));
+                float theta = acos(_Stretching*p.z/r);
                 return float3(r, theta/pi, p.y);
             }
 
 
-            fixed4 discard_black(fixed4 col) {
+            fixed4 DiscardBlack(fixed4 col) {
                 if (col.r < _Tol && col.g < _Tol && col.b < _Tol)
                     col = fixed4(0.1, 0.1, 0.1, 0.1);
                 return col;
             }
 
-            fixed4 vanishing_black(fixed4 col){
+            fixed4 VanishingBlack(fixed4 col){
                 if (col.r < _Tol && col.g < _Tol && col.b < _Tol)
                     col = fixed4(0.1, 0.1, 0.1, 0.1);
                 col = fixed4(col.r, col.g, col.b, max(0.4+(col.r+col.g+col.b)/3.,0.4));
@@ -243,15 +243,14 @@ Shader "Unlit/Ray Marching"
                     //if (abs(p_cyl.y+.5) <= 1e-3)
                     //    col = tex2D(_MainTex, float2(-.48,p_cyl.z)-float2(0,_Size));
                     //col = float4(p_cyl.y+1.5, 0, 0, 1.);
-                    col = vanishing_black(col);
+                    
+                    col = VanishingBlack(col);
 
                    
                 }
                 
                 //col += smoothstep(.1, .2, m);
                 
-
-                int testGit23342 = 1;
 
                 return col;
             }

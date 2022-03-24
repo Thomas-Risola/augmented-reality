@@ -105,7 +105,7 @@ Shader "Unlit/Ray Marching"
                 float3 ab = b - a;
                 float3 ap = p - a;
 
-                float3 n = normalize(float3( -ab.y, ab.x, 100*pi)); // Changement de 3.14/2 à 100*pi
+                float3 n = normalize(float3( -ab.y, ab.x, 0)); // Changement de 3.14/2 à 100*pi
 
                 float orientation = -dot(n, ap); // Changement de signe pour l'orientation du cylindre
 

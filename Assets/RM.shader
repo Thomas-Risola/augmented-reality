@@ -8,6 +8,7 @@ Shader "Unlit/Ray Marching"
         _Radius("Radius", Range(0, 1)) = .5
         _Tol("Tol", Range(0, 1)) = 0
         _Arc("Arc", Range(-.5,.5)) = 0
+        _Stretching("Stretching", Range(0.1, 2)) = 1
     }
     SubShader
     {
@@ -53,6 +54,7 @@ Shader "Unlit/Ray Marching"
             float _Radius;
             float _Tol;
             float _Arc;
+            float _Stretching;
             
 
 
@@ -178,7 +180,7 @@ Shader "Unlit/Ray Marching"
             // Conversion de cartésien à cylindrique 
             float3 Cart_To_Cyl(float3 p) {
                 float r = _Radius;
-                float theta = atan(p.z/p.x);
+                float theta = atan(p.z/(_Stretching*p.x));
                 return float3(r, theta/pi, p.y);
             }
 

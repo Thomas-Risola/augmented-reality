@@ -135,7 +135,7 @@ Shader "Unlit/Ray Marching"
                 //float d = OpenPartialCylinder(p, float3(0,_Size,0), float3(0,-_Size,0), _Radius, _Arc);
 
                 // for a cube
-                float d = Cube(p, float3(1,1,1)) ;
+                float d = Cube(p, float3(.5,.5,.5)) ;
                 
 
                 return d;

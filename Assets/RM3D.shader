@@ -47,7 +47,7 @@ Shader "Unlit/Ray Marching"
             };
 
 
-            sampler2D _MainTex;
+            sampler3D _MainTex;
             float4 _MainTex_ST;
             
             float _Size;
@@ -123,7 +123,6 @@ Shader "Unlit/Ray Marching"
 
             float Cube(float3 p, float3 s){
                 p = abs(p)-s;
-
                 return length(max(p, 0.))+min(max(p.x, max(p.y, p.z)), 0.);
             }
 
@@ -133,10 +132,10 @@ Shader "Unlit/Ray Marching"
                 // float d = length(p) - .5;
 
                 // for a cylinder
-                float d = OpenPartialCylinder(p, float3(0,_Size,0), float3(0,-_Size,0), _Radius, _Arc);
+                //float d = OpenPartialCylinder(p, float3(0,_Size,0), float3(0,-_Size,0), _Radius, _Arc);
 
                 // for a cube
-                //float d = Cube(p, float3(1,1,1)) ;
+                float d = Cube(p, float3(1,1,1)) ;
                 
 
                 return d;
@@ -160,21 +159,15 @@ Shader "Unlit/Ray Marching"
             
             // Modif pour avoir le RM pour le semii-cylindre et le cylindre
             float2 Raymarch(float3 ro, float3 rd) {
-                float dO_partial = 0;
-                float dO_cylinder = 0;
-                float dS_partial;
-                float dS_cylinder;
+                float dO = 0;
+                float dS;
                 for (int i = 0; i < MAX_STEPS; i++){
-                    float3 p_partial = ro + dO_partial * rd;
-                    float3 p_cylinder = ro + dO_cylinder * rd;
-                    dS_partial = GetDist(p_partial);
-                    dS_cylinder = GetDist_Cylinder(p_cylinder);
-                    dO_partial += dS_partial;
-                    dO_cylinder += dS_cylinder;
-                    if ((dS_partial < SURF_DIST || dO_partial > MAX_DIST) && (dS_cylinder < SURF_DIST || dO_cylinder > MAX_DIST)) break;
+                    float3 p = ro + dO* rd;
+                    dS = GetDist(p);
+                    dO += dS;
+                    if ((dS < SURF_DIST || dO > MAX_DIST)) break;
                 }
-
-                return float2(dO_partial, dO_cylinder);
+                return dO;
             }
 
             // Conversion de cartésien à cylindrique 
@@ -198,6 +191,16 @@ Shader "Unlit/Ray Marching"
                 return col;
             }
 
+            float4 GetTexture(float3 p, float3 rd) {
+                float4 sample3D = tex3D(_MainTex, p); 
+                [unroll(100)]
+                while (GetDist(p) < epsilon) {
+                    p += rd*epsilon;
+                    if (length(sample3D) < length(tex3D(_MainTex, p)))
+                        sample3D = tex3D(_MainTex, p);
+                } 
+                return sample3D;
+            }
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -229,20 +232,7 @@ Shader "Unlit/Ray Marching"
                     float3 n = GetNormal(p);
                     float3 p_cyl = Cart_To_Cyl(p);
 
-                    // float dif = dot(n, normalize(float3(1,2,3)))*.5+.5;
-                    //col += dif*dif;
-                    //float3 colXZ = tex2D(_MainTex, p.xz*.5+.5).rgb;
-                    //float3 colYZ = tex2D(_MainTex, p.yz*.5+.5).rgb;
-                    //float3 colXY = tex2D(_MainTex, p.xy*.5+.5).rgb;
-                    // n = abs(n);
-                    // col.rgb = colYZ*n.x + colXZ*n.y + colXY*n.z ;
-                    //col.rgb = colXY*n.z + colYZ*n.x; 
-                    //col = tex2D(_MainTex, i.uv);
-
-                    col = tex2D(_MainTex, p_cyl.yz-float2(0,_Size));
-                    //if (abs(p_cyl.y+.5) <= 1e-3)
-                    //    col = tex2D(_MainTex, float2(-.48,p_cyl.z)-float2(0,_Size));
-                    //col = float4(p_cyl.y+1.5, 0, 0, 1.);
+                    col = GetTexture(p, rd);
                     col = VanishingBlack(col);
 
                    

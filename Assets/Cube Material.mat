@@ -73,8 +73,9 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Stretching: 0.76
+    - _Tol: 0
     - _Stretching: 1.019
-    - _Tol: 0.12
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:

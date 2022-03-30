@@ -29,6 +29,7 @@ Shader "Unlit/Ray Marching"
 #define MAX_STEPS 100
 #define MAX_DIST 100
 #define SURF_DIST 1e-3
+#define STEP_SIZE 2e-2
 #define pi 3.141592653589793238462
 #define epsilon 1e-5
 
@@ -191,13 +192,22 @@ Shader "Unlit/Ray Marching"
                 return col;
             }
 
+
+            // accumulatedColor = max ou moy ou ???
+            // Noyau Gaussien ???
+            float4 TransferFunction(float4 sampledColor, float4 accumulatedColor) {
+                return accumulatedColor;
+            }
+
             float4 GetTexture(float3 p, float3 rd) {
-                float4 sample3D = tex3D(_MainTex, p); 
-                [unroll(100)]
-                while (GetDist(p) < epsilon) {
-                    p += rd*epsilon;
-                    if (length(sample3D) < length(tex3D(_MainTex, p)))
-                        sample3D = tex3D(_MainTex, p);
+                // +float3(0.5,0.5,0.5) pour centrer la texture
+                float4 sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
+                for(int i=0; i<MAX_STEPS; i++)  {
+                    if(GetDist(p) > SURF_DIST) break;
+                    p += rd*STEP_SIZE;
+                    [unroll(100)]
+                    if (length(sample3D) < length(tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f))))
+                        sample3D = tex3D(_MainTex, p+ float3(0.5f, 0.5f, 0.5f));
                 } 
                 return sample3D;
             }
@@ -215,7 +225,6 @@ Shader "Unlit/Ray Marching"
                 float d_cylinder = d.y;
                 
 
- 
                 // sample the texture
                 fixed4 col = fixed4(0,0,0,0);
                 float m = dot(uv, uv);
@@ -235,7 +244,6 @@ Shader "Unlit/Ray Marching"
                     col = GetTexture(p, rd);
                     col = VanishingBlack(col);
 
-                   
                 }
                 
                 //col += smoothstep(.1, .2, m);

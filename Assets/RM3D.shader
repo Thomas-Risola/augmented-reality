@@ -9,6 +9,8 @@ Shader "Unlit/Ray Marching"
         _Tol("Tol", Range(0, 1)) = 0
         _Arc("Arc", Range(-.5,.5)) = 0
         _Stretching("Stretching", Range(0.1, 2)) = 1
+        _StepSize("StepSize", Range(.00001, .1)) = .02
+
     }
     SubShader
     {
@@ -29,7 +31,6 @@ Shader "Unlit/Ray Marching"
 #define MAX_STEPS 100
 #define MAX_DIST 100
 #define SURF_DIST 1e-3
-#define STEP_SIZE 2e-2
 #define pi 3.141592653589793238462
 #define epsilon 1e-5
 
@@ -56,7 +57,7 @@ Shader "Unlit/Ray Marching"
             float _Tol;
             float _Arc;
             float _Stretching;
-            
+            float _StepSize;
 
 
             v2f vert (appdata v)
@@ -204,7 +205,7 @@ Shader "Unlit/Ray Marching"
                 float4 sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
                 for(int i=0; i<MAX_STEPS; i++)  {
                     if(GetDist(p) > SURF_DIST) break;
-                    p += rd*STEP_SIZE;
+                    p += rd*_StepSize;
                     [unroll(100)]
                     if (length(sample3D) < length(tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f))))
                         sample3D = tex3D(_MainTex, p+ float3(0.5f, 0.5f, 0.5f));

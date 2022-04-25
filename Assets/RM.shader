@@ -55,7 +55,6 @@ Shader "Unlit/Ray Marching"
             float _Tol;
             float _Arc;
             float _Stretching;
-            
 
 
             v2f vert (appdata v)
@@ -63,7 +62,7 @@ Shader "Unlit/Ray Marching"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.ro = _WorldSpaceCameraPos;
+                o.ro = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos,1));
                 o.hitPos = v.vertex;
 
                 return o;

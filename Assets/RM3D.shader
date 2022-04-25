@@ -9,6 +9,8 @@ Shader "Unlit/Ray Marching"
         _Tol("Tol", Range(0, 1)) = 0
         _Arc("Arc", Range(-.5,.5)) = 0
         _Stretching("Stretching", Range(0.1, 2)) = 1
+        _StepSize("StepSize", Range(0.001, 0.1)) = 0.01
+        _MaxStep("MaxStep", Range(1, 100)) = 50
     }
     SubShader
     {
@@ -56,6 +58,8 @@ Shader "Unlit/Ray Marching"
             float _Tol;
             float _Arc;
             float _Stretching;
+            float _StepSize;
+            int _MaxStep;
             
 
 
@@ -64,7 +68,7 @@ Shader "Unlit/Ray Marching"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.ro = _WorldSpaceCameraPos;
+                o.ro = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos,1));
                 o.hitPos = v.vertex;
 
                 return o;
@@ -199,13 +203,16 @@ Shader "Unlit/Ray Marching"
                 return accumulatedColor;
             }
 
+
+            // essayer de discard
+            // pour voir un object/ des tractoires à l'interieur
             float4 GetTexture(float3 p, float3 rd) {
                 // +float3(0.5,0.5,0.5) pour centrer la texture
                 float4 sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
-                for(int i=0; i<MAX_STEPS; i++)  {
+                [unroll(100)]
+                for(int i=0; i<_MaxStep; i++)  {
                     if(GetDist(p) > SURF_DIST) break;
-                    p += rd*STEP_SIZE;
-                    [unroll(100)]
+                    p += rd*_StepSize;
                     if (length(sample3D) < length(tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f))))
                         sample3D = tex3D(_MainTex, p+ float3(0.5f, 0.5f, 0.5f));
                 } 

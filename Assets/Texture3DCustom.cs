@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Texture3D : MonoBehaviour
+public class Texture3DCustom : MonoBehaviour
 {
 
     // public attributes : we can change them in unity or specify them
@@ -12,7 +12,7 @@ public class Texture3D : MonoBehaviour
 
 
     // private attributes : we don't need to take care of them
-    private Texture2D tex;
+    private Texture3D tex;
     private Object[] cell;
     private TextAsset tracks;
 
@@ -20,7 +20,7 @@ public class Texture3D : MonoBehaviour
    
     void LoadTexture()
     {
-        cell = Resources.LoadAll("3DFilm", typeof(Texture2D));    
+        cell = Resources.LoadAll("3DFilm", typeof(Texture3D));    
     }
 
 
@@ -46,7 +46,7 @@ public class Texture3D : MonoBehaviour
         // indexees de 0 a cell.Length-1
         float idx = (Time.time*frame_per_sec) % cell.Length;
         int index = (int)idx;
-        tex = cell[index] as Texture2D;
+        tex = cell[index] as Texture3D;
         mat.SetTexture("_MainTex", tex);
 
 

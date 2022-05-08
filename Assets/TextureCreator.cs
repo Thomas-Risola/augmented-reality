@@ -12,7 +12,13 @@ public class TextureCreator : MonoBehaviour
 
         {
             int k = 1;
-            string basenameTime = basename + "000" + t.ToString()  + "_z" ;
+
+            string basenameTime;
+            if (t <10)
+                basenameTime = basename + "000" + t.ToString()  + "_z";
+            else
+                basenameTime = basename + "00" + t.ToString()  + "_z";
+
             name = basenameTime + k.ToString().PadLeft(zeropad, '0');
     
             Texture2D img = Resources.Load<Texture2D>(name);

@@ -40,7 +40,7 @@ public class Texture3DCustom : MonoBehaviour
         mat.SetFloat("_Size", size);
 
         // time interval between 2 images
-        float frame_per_sec = 3;
+        float frame_per_sec = 10;
 
         // on a dans le tableau cell toutes les images 
         // indexees de 0 a cell.Length-1

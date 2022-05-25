@@ -9,8 +9,8 @@ Shader "Unlit/Ray Marching"
         _Tol("Tol", Range(0, 1)) = 0
         _Arc("Arc", Range(-.5,.5)) = 0
         _Stretching("Stretching", Range(0.1, 2)) = 1
-        _StepSize("StepSize", Range(0.001, 0.1)) = 0.01
-        _MaxStep("MaxStep", Range(1, 100)) = 50
+        _StepSize("StepSize", Range(0.0001, 0.1)) = 0.01
+        _MaxStep("MaxStep", Range(1, 10000)) = 50
     }
     SubShader
     {
@@ -208,7 +208,7 @@ Shader "Unlit/Ray Marching"
             float4 GetTexture(float3 p, float3 rd) {
                 // +float3(0.5,0.5,0.5) pour centrer la texture
                 float4 sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
-                [unroll(100)]
+                [loop]
                 for(int i=0; i<_MaxStep; i++)  {
                     if(GetDist(p) > SURF_DIST) break;
                     p += rd*_StepSize;
@@ -217,6 +217,26 @@ Shader "Unlit/Ray Marching"
                 } 
                 return sample3D;
             }
+
+            float4 GetTextureOpti(float3 p, float3 rd) {
+                // +float3(0.5,0.5,0.5) pour centrer la texture
+                float4 sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
+                float sample3DGray =  sample3D[0]*exp(50*sample3D[0]);
+                float diviseur = exp(50*sample3D[0]);
+                [unroll(10000)]
+                for(int i=0; i<_MaxStep; i++)  {
+                    if(GetDist(p) > SURF_DIST) break;
+                    p += rd*_StepSize;
+                    sample3D = tex3D(_MainTex, p + float3(0.5f, 0.5f, 0.5f)); 
+                    sample3DGray +=  sample3D[0]*exp(50*sample3D[0]);
+                    diviseur += exp(50*sample3D[0]);
+                } 
+                float softmax = sample3DGray/diviseur;
+                sample3D = float4(softmax,softmax,softmax,1);
+                return sample3D;
+            }
+
+     
 
             fixed4 frag (v2f i) : SV_Target
             {
